@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -15,7 +14,7 @@ declare global {
   }
 }
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     // Get token from header
     const token = req.headers.authorization?.split(' ')[1];
@@ -25,13 +24,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    
-    // Check if user exists in database
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid token - User not found' });
-    }
-
     req.user = { userId: decoded.userId };
     next();
   } catch (error) {

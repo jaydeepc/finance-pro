@@ -1,24 +1,38 @@
 import express from 'express';
-import { User } from '../models/User';
 
 const router = express.Router();
 
-// Get financial profile
-router.get('/profile', async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+// Mock financial data
+const mockFinancialData = {
+  profile: {
+    creditScore: 750,
+    monthlyIncome: 5000,
+    currentSavings: 10000,
+    currentInvestments: {
+      stocks: 5000,
+      bonds: 3000,
+      realEstate: 0,
+      other: 2000
     }
+  },
+  retirementGoals: {
+    currentAge: 30,
+    targetAge: 65,
+    monthlyRetirementIncome: 8000,
+    riskTolerance: 'moderate' as const
+  },
+  settings: {
+    emailNotifications: true,
+    darkMode: false,
+    twoFactorAuth: false,
+    marketingEmails: true
+  }
+};
 
-    // Ensure we have at least an empty financial profile
-    const financialProfile = user.financialProfile || {
-      monthlyIncome: 0,
-      currentInvestments: {},
-      retirementGoals: {}
-    };
-
-    res.json(financialProfile);
+// Get financial profile
+router.get('/profile', (req, res) => {
+  try {
+    res.json(mockFinancialData.profile);
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Error getting financial profile' });
@@ -26,22 +40,14 @@ router.get('/profile', async (req, res) => {
 });
 
 // Update financial profile
-router.post('/profile', async (req, res) => {
+router.post('/profile', (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Update financial profile with new data
-    user.financialProfile = {
-      ...user.financialProfile,
-      ...req.body,
-      monthlyIncome: req.body.monthlyIncome || user.financialProfile.monthlyIncome || 0,
+    const updatedProfile = {
+      ...mockFinancialData.profile,
+      ...req.body
     };
-
-    await user.save();
-    res.json(user.financialProfile);
+    mockFinancialData.profile = updatedProfile;
+    res.json(updatedProfile);
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Error updating financial profile' });
@@ -49,16 +55,9 @@ router.post('/profile', async (req, res) => {
 });
 
 // Get retirement plan
-router.get('/retirement', async (req, res) => {
+router.get('/retirement', (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Ensure we have at least an empty retirement plan
-    const retirementGoals = user.financialProfile?.retirementGoals || {};
-    res.json(retirementGoals);
+    res.json(mockFinancialData.retirementGoals);
   } catch (error) {
     console.error('Get retirement plan error:', error);
     res.status(500).json({ message: 'Error getting retirement plan' });
@@ -66,29 +65,14 @@ router.get('/retirement', async (req, res) => {
 });
 
 // Update retirement plan
-router.post('/retirement', async (req, res) => {
+router.post('/retirement', (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Ensure financialProfile exists
-    if (!user.financialProfile) {
-      user.financialProfile = {
-        monthlyIncome: 0,
-        retirementGoals: {}
-      };
-    }
-
-    // Update retirement goals
-    user.financialProfile.retirementGoals = {
-      ...user.financialProfile.retirementGoals,
+    const updatedRetirementGoals = {
+      ...mockFinancialData.retirementGoals,
       ...req.body
     };
-
-    await user.save();
-    res.json(user.financialProfile.retirementGoals);
+    mockFinancialData.retirementGoals = updatedRetirementGoals;
+    res.json(updatedRetirementGoals);
   } catch (error) {
     console.error('Update retirement plan error:', error);
     res.status(500).json({ message: 'Error updating retirement plan' });
@@ -96,22 +80,9 @@ router.post('/retirement', async (req, res) => {
 });
 
 // Get user settings
-router.get('/settings', async (req, res) => {
+router.get('/settings', (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Ensure we have default settings
-    const settings = user.settings || {
-      emailNotifications: true,
-      darkMode: false,
-      twoFactorAuth: false,
-      marketingEmails: false
-    };
-
-    res.json(settings);
+    res.json(mockFinancialData.settings);
   } catch (error) {
     console.error('Get settings error:', error);
     res.status(500).json({ message: 'Error getting user settings' });
@@ -119,21 +90,14 @@ router.get('/settings', async (req, res) => {
 });
 
 // Update user settings
-router.post('/settings', async (req, res) => {
+router.post('/settings', (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Update settings
-    user.settings = {
-      ...user.settings,
+    const updatedSettings = {
+      ...mockFinancialData.settings,
       ...req.body
     };
-
-    await user.save();
-    res.json(user.settings);
+    mockFinancialData.settings = updatedSettings;
+    res.json(updatedSettings);
   } catch (error) {
     console.error('Update settings error:', error);
     res.status(500).json({ message: 'Error updating user settings' });
