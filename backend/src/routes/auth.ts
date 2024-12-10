@@ -1,47 +1,20 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { mockDb } from '../db/mockDb';
+import { User } from '../models/User';
 
-const router = Router();
-
-interface RegisterBody {
-  email: string;
-  password: string;
-  financialProfile: {
-    creditScore?: number;
-    monthlyIncome: number;
-    currentSavings?: number;
-    currentInvestments?: {
-      stocks?: number;
-      bonds?: number;
-      realEstate?: number;
-      other?: number;
-    };
-    retirementGoals?: {
-      currentAge?: number;
-      targetAge?: number;
-      monthlyRetirementIncome?: number;
-      riskTolerance?: 'conservative' | 'moderate' | 'aggressive';
-    };
-  };
-}
-
-interface LoginBody {
-  email: string;
-  password: string;
-}
+const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Register
-router.post('/register', async (req: Request<{}, {}, RegisterBody>, res: Response): Promise<void> => {
+router.post('/register', async (req, res) => {
   try {
     const { email, password, financialProfile } = req.body;
 
-    // Check if user exists
-    let user = await mockDb.findUserByEmail(email);
-    if (user) {
-      res.status(400).json({ message: 'User already exists' });
-      return;
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     // Hash password
@@ -49,76 +22,87 @@ router.post('/register', async (req: Request<{}, {}, RegisterBody>, res: Respons
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create user
-    user = await mockDb.createUser({
+    const user = new User({
       email,
       password: hashedPassword,
       financialProfile: {
         ...financialProfile,
-        retirementGoals: {
-          ...financialProfile.retirementGoals,
-          riskTolerance: financialProfile.retirementGoals?.riskTolerance || 'moderate'
-        }
-      }
+        monthlyIncome: financialProfile?.monthlyIncome || 0,
+      },
     });
 
-    // Create JWT token
+    await user.save();
+
+    // Create token
     const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || 'defaultsecret',
+      { userId: user._id },
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     res.status(201).json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        financialProfile: user.financialProfile,
-      },
+      user: user.toJSON()
     });
-  } catch (err) {
-    const error = err as Error;
-    res.status(500).json({ message: 'Server error', error: error.message });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Error registering user' });
   }
 });
 
 // Login
-router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response): Promise<void> => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await mockDb.findUserByEmail(email);
+    // Find user
+    const user = await User.findOne({ email });
     if (!user) {
-      res.status(400).json({ message: 'Invalid credentials' });
-      return;
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Validate password
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      res.status(400).json({ message: 'Invalid credentials' });
-      return;
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Create JWT token
+    // Create token
     const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || 'defaultsecret',
+      { userId: user._id },
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     res.json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        financialProfile: user.financialProfile,
-      },
+      user: user.toJSON()
     });
-  } catch (err) {
-    const error = err as Error;
-    res.status(500).json({ message: 'Server error', error: error.message });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Error logging in' });
+  }
+});
+
+// Get current user
+router.get('/me', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user.toJSON());
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Error getting user data' });
   }
 });
 

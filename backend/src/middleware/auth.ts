@@ -1,37 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { mockDb } from '../db/mockDb';
 
-interface JwtPayload {
-  userId: string;
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
-      userId?: string;
+      user: {
+        userId: string;
+      };
     }
   }
 }
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    // Get token from header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret') as JwtPayload;
-
-    const user = await mockDb.findUserById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    req.userId = decoded.userId;
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    req.user = { userId: decoded.userId };
     next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    res.status(401).json({ message: 'Invalid token' });
   }
 };
