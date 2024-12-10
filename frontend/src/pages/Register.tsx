@@ -1,41 +1,39 @@
 import { useState } from 'react'
 import { useNavigate, Link as RouterLink } from 'react-router-dom'
 import {
-  Container,
   Box,
   Typography,
   TextField,
   Button,
   Link,
-  Paper,
   Alert,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  SelectChangeEvent,
+  InputAdornment,
+  IconButton,
+  useTheme,
 } from '@mui/material'
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@mui/icons-material'
 import { authAPI } from '../services/api'
 import { auth } from '../utils/auth'
-import { RiskTolerance, RegisterRequest } from '../types/api'
-
-interface FormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  monthlyIncome: string;
-  riskTolerance: RiskTolerance;
-}
+import AuthHero from '../components/auth/AuthHero'
+import { RegisterRequest } from '../types/api'
 
 function Register() {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState<FormData>({
+  const theme = useTheme()
+  const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    monthlyIncome: '',
-    riskTolerance: 'moderate',
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -48,11 +46,6 @@ function Register() {
       return
     }
 
-    if (!formData.monthlyIncome || isNaN(Number(formData.monthlyIncome))) {
-      setError('Please enter a valid monthly income')
-      return
-    }
-
     setLoading(true)
 
     try {
@@ -60,23 +53,10 @@ function Register() {
         email: formData.email,
         password: formData.password,
         financialProfile: {
-          monthlyIncome: Number(formData.monthlyIncome),
-          retirementGoals: {
-            currentAge: 30, // Default value
-            targetAge: 65, // Default value
-            monthlyRetirementIncome: Number(formData.monthlyIncome) * 0.7, // 70% of current income
-            riskTolerance: formData.riskTolerance,
-          },
-          currentSavings: 0,
-          currentInvestments: {
-            stocks: 0,
-            bonds: 0,
-            realEstate: 0,
-            other: 0,
-          },
+          monthlyIncome: 0, // Default value, will be updated in financial profile
         },
       }
-
+      
       const response = await authAPI.register(registerData)
       auth.setAuth(response)
       navigate('/')
@@ -87,7 +67,7 @@ function Register() {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -95,129 +75,248 @@ function Register() {
     }))
   }
 
-  const handleRiskToleranceChange = (e: SelectChangeEvent<RiskTolerance>) => {
-    setFormData(prev => ({
-      ...prev,
-      riskTolerance: e.target.value as RiskTolerance
-    }))
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev)
+  }
+
+  const handleToggleConfirmPassword = () => {
+    setShowConfirmPassword(prev => !prev)
   }
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Box
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        bgcolor: theme.palette.background.default,
+      }}
+    >
+      {/* Left side - Hero Section */}
       <Box
         sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          flex: '1 1 50%',
+          display: { xs: 'none', md: 'block' },
         }}
       >
-        <Paper
-          elevation={3}
+        <AuthHero />
+      </Box>
+
+      {/* Right side - Registration Form */}
+      <Box
+        sx={{
+          flex: '1 1 50%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 6,
+          position: 'relative',
+        }}
+      >
+        <Box
           sx={{
-            padding: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            maxWidth: '400px',
             width: '100%',
           }}
         >
-          <Typography component="h1" variant="h5">
-            Register
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 600,
+              mb: 4,
+              textAlign: 'center',
+            }}
+          >
+            Create Account
           </Typography>
+
           {error && (
-            <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 3,
+                borderRadius: 2,
+                '& .MuiAlert-message': {
+                  width: '100%',
+                },
+              }}
+            >
               {error}
             </Alert>
           )}
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit}
+            sx={{
+              '& .MuiTextField-root': {
+                mb: 2.5,
+              },
+            }}
+          >
             <TextField
-              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Full Name"
+              name="name"
+              autoComplete="name"
+              autoFocus
+              value={formData.name}
+              onChange={handleChange}
+              disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
+              }}
+            />
+
+            <TextField
               required
               fullWidth
               id="email"
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
               value={formData.email}
-              onChange={handleInputChange}
+              onChange={handleChange}
               disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
+              }}
             />
+
             <TextField
-              margin="normal"
               required
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="new-password"
               value={formData.password}
-              onChange={handleInputChange}
+              onChange={handleChange}
               disabled={loading}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleTogglePassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
+              }}
             />
+
             <TextField
-              margin="normal"
               required
               fullWidth
               name="confirmPassword"
               label="Confirm Password"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
+              autoComplete="new-password"
               value={formData.confirmPassword}
-              onChange={handleInputChange}
-              disabled={loading}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="monthlyIncome"
-              label="Monthly Income"
-              type="number"
-              id="monthlyIncome"
-              value={formData.monthlyIncome}
-              onChange={handleInputChange}
+              onChange={handleChange}
               disabled={loading}
               InputProps={{
-                startAdornment: <Typography>$</Typography>
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleToggleConfirmPassword}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                },
               }}
             />
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="risk-tolerance-label">Risk Tolerance</InputLabel>
-              <Select
-                labelId="risk-tolerance-label"
-                id="riskTolerance"
-                name="riskTolerance"
-                value={formData.riskTolerance}
-                label="Risk Tolerance"
-                onChange={handleRiskToleranceChange}
-                disabled={loading}
-              >
-                <MenuItem value="conservative">Conservative</MenuItem>
-                <MenuItem value="moderate">Moderate</MenuItem>
-                <MenuItem value="aggressive">Aggressive</MenuItem>
-              </Select>
-            </FormControl>
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
+              sx={{
+                mt: 2,
+                mb: 3,
+                py: 1.5,
+                borderRadius: 2,
+                fontSize: '1rem',
+                textTransform: 'none',
+                background: 'linear-gradient(45deg, #2E5CFF 0%, #00C9FF 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #5B7FFF 0%, #6EFFFF 100%)',
+                },
+              }}
             >
-              {loading ? 'Creating Account...' : 'Register'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
+
             <Box sx={{ textAlign: 'center' }}>
-              <Link component={RouterLink} to="/login" variant="body2">
+              <Link
+                component={RouterLink}
+                to="/login"
+                sx={{
+                  color: theme.palette.primary.main,
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': {
+                    color: theme.palette.primary.dark,
+                  },
+                }}
+              >
                 Already have an account? Sign in
               </Link>
             </Box>
           </Box>
-        </Paper>
+        </Box>
       </Box>
-    </Container>
+    </Box>
   )
 }
 
