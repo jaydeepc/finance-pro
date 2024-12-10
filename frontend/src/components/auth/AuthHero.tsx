@@ -1,24 +1,36 @@
-import { Box, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+import { Box, Typography, useTheme } from '@mui/material'
+import { AccountBalance as AccountBalanceIcon, Security as SecurityIcon, TrendingUp as TrendingUpIcon } from '@mui/icons-material'
 
 export default function AuthHero() {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
 
+  const features = [
+    {
+      icon: <AccountBalanceIcon sx={{ fontSize: 24 }} />,
+      title: 'Smart Banking',
+      description: 'Experience intelligent financial management with our advanced banking solutions',
+    },
+    {
+      icon: <SecurityIcon sx={{ fontSize: 24 }} />,
+      title: 'Secure & Protected',
+      description: 'Your finances are protected with enterprise-grade security measures',
+    },
+    {
+      icon: <TrendingUpIcon sx={{ fontSize: 24 }} />,
+      title: 'Wealth Growth',
+      description: 'Maximize your wealth potential with our expert financial guidance',
+    },
+  ]
+
   return (
     <Box
       sx={{
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        height: '100%',
-        p: 6,
-        background: `linear-gradient(135deg, ${
-          isDark ? 'rgba(46,92,255,0.15)' : 'rgba(46,92,255,0.05)'
-        } 0%, ${
-          isDark ? 'rgba(0,201,255,0.15)' : 'rgba(0,201,255,0.05)'
-        } 100%)`,
+        p: { xs: 4, md: 8 },
         position: 'relative',
         overflow: 'hidden',
         '&::before': {
@@ -31,119 +43,127 @@ export default function AuthHero() {
           backgroundImage: 'url("/auth-pattern.svg")',
           backgroundSize: 'cover',
           opacity: 0.1,
-          zIndex: 1,
+          zIndex: 0,
         },
       }}
     >
-      <Box sx={{ position: 'relative', zIndex: 2, maxWidth: '480px' }}>
+      <Box sx={{ position: 'relative', zIndex: 1, maxWidth: '480px' }}>
+        <Box 
+          sx={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            bgcolor: isDark ? 'rgba(46,92,255,0.1)' : 'rgba(46,92,255,0.05)',
+            color: theme.palette.primary.main,
+            py: 1,
+            px: 2,
+            borderRadius: 2,
+            mb: 4,
+          }}
+        >
+          <AccountBalanceIcon sx={{ mr: 1, fontSize: 20 }} />
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            Financial Advisor Pro
+          </Typography>
+        </Box>
+
         <Typography
           variant="h3"
-          gutterBottom
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2E5CFF 0%, #00C9FF 100%)',
-            backgroundClip: 'text',
-            textFillColor: 'transparent',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 3,
-          }}
-        >
-          Welcome to Financial Advisor
-        </Typography>
-        
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            fontWeight: 500,
+            mb: 2,
             color: theme.palette.text.primary,
-            mb: 3,
           }}
         >
-          Your Path to Financial Freedom
+          Your Path to{' '}
+          <Box
+            component="span"
+            sx={{
+              color: theme.palette.primary.main,
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 4,
+                left: 0,
+                width: '100%',
+                height: '8px',
+                background: isDark ? 'rgba(46,92,255,0.2)' : 'rgba(46,92,255,0.1)',
+                borderRadius: '4px',
+                zIndex: -1,
+              },
+            }}
+          >
+            Financial
+          </Box>
+          {' '}Success
         </Typography>
 
         <Typography
-          variant="body1"
+          variant="subtitle1"
           sx={{
             color: theme.palette.text.secondary,
-            mb: 4,
+            mb: 6,
             lineHeight: 1.8,
           }}
         >
-          Take control of your financial future with our comprehensive suite of tools and expert guidance. Plan smarter, invest better, and achieve your financial goals with confidence.
+          Join thousands of users who trust us to manage their finances. Get personalized advice, secure banking, and expert financial planning all in one place.
         </Typography>
 
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 3,
-            mt: 4,
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {features.map((feature, index) => (
+            <Box
+              key={index}
               sx={{
-                fontWeight: 700,
-                color: theme.palette.primary.main,
-                mb: 1,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.5)',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateX(8px)',
+                },
               }}
             >
-              1M+
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: theme.palette.text.secondary,
-              }}
-            >
-              Active Users
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                color: theme.palette.primary.main,
-                mb: 1,
-              }}
-            >
-              $50B+
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: theme.palette.text.secondary,
-              }}
-            >
-              Assets Managed
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                color: theme.palette.primary.main,
-                mb: 1,
-              }}
-            >
-              98%
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: theme.palette.text.secondary,
-              }}
-            >
-              Client Satisfaction
-            </Typography>
-          </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 2,
+                  bgcolor: isDark ? 'rgba(46,92,255,0.1)' : 'rgba(46,92,255,0.05)',
+                  color: theme.palette.primary.main,
+                }}
+              >
+                {feature.icon}
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: theme.palette.text.primary,
+                    mb: 0.5,
+                  }}
+                >
+                  {feature.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {feature.description}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
         </Box>
       </Box>
     </Box>
