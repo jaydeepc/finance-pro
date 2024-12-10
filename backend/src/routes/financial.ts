@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Request, Response } from 'express';
 
 const router = express.Router();
 
@@ -30,77 +31,77 @@ const mockFinancialData = {
 };
 
 // Get financial profile
-router.get('/profile', (req, res) => {
+router.get('/profile', (_: Request, res: Response) => {
   try {
-    res.json(mockFinancialData.profile);
+    return res.json(mockFinancialData.profile);
   } catch (error) {
     console.error('Get profile error:', error);
-    res.status(500).json({ message: 'Error getting financial profile' });
+    return res.status(500).json({ message: 'Error getting financial profile' });
   }
 });
 
 // Update financial profile
-router.post('/profile', (req, res) => {
+router.post('/profile', (req: Request, res: Response) => {
   try {
     const updatedProfile = {
       ...mockFinancialData.profile,
       ...req.body
     };
     mockFinancialData.profile = updatedProfile;
-    res.json(updatedProfile);
+    return res.json(updatedProfile);
   } catch (error) {
     console.error('Update profile error:', error);
-    res.status(500).json({ message: 'Error updating financial profile' });
+    return res.status(500).json({ message: 'Error updating financial profile' });
   }
 });
 
 // Get retirement plan
-router.get('/retirement', (req, res) => {
+router.get('/retirement', (_: Request, res: Response) => {
   try {
-    res.json(mockFinancialData.retirementGoals);
+    return res.json(mockFinancialData.retirementGoals);
   } catch (error) {
     console.error('Get retirement plan error:', error);
-    res.status(500).json({ message: 'Error getting retirement plan' });
+    return res.status(500).json({ message: 'Error getting retirement plan' });
   }
 });
 
 // Update retirement plan
-router.post('/retirement', (req, res) => {
+router.post('/retirement', (req: Request, res: Response) => {
   try {
     const updatedRetirementGoals = {
       ...mockFinancialData.retirementGoals,
       ...req.body
     };
     mockFinancialData.retirementGoals = updatedRetirementGoals;
-    res.json(updatedRetirementGoals);
+    return res.json(updatedRetirementGoals);
   } catch (error) {
     console.error('Update retirement plan error:', error);
-    res.status(500).json({ message: 'Error updating retirement plan' });
+    return res.status(500).json({ message: 'Error updating retirement plan' });
   }
 });
 
 // Get user settings
-router.get('/settings', (req, res) => {
+router.get('/settings', (_: Request, res: Response) => {
   try {
-    res.json(mockFinancialData.settings);
+    return res.json(mockFinancialData.settings);
   } catch (error) {
     console.error('Get settings error:', error);
-    res.status(500).json({ message: 'Error getting user settings' });
+    return res.status(500).json({ message: 'Error getting user settings' });
   }
 });
 
 // Update user settings
-router.post('/settings', (req, res) => {
+router.post('/settings', (req: Request, res: Response) => {
   try {
     const updatedSettings = {
       ...mockFinancialData.settings,
       ...req.body
     };
     mockFinancialData.settings = updatedSettings;
-    res.json(updatedSettings);
+    return res.json(updatedSettings);
   } catch (error) {
     console.error('Update settings error:', error);
-    res.status(500).json({ message: 'Error updating user settings' });
+    return res.status(500).json({ message: 'Error updating user settings' });
   }
 });
 

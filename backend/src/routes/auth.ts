@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
@@ -23,7 +24,7 @@ const mockUser = {
 };
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -35,7 +36,7 @@ router.post('/login', async (req, res) => {
         { expiresIn: '24h' }
       );
 
-      res.json({
+      return res.json({
         token,
         user: {
           id: mockUser.id,
@@ -44,18 +45,18 @@ router.post('/login', async (req, res) => {
         }
       });
     } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Error logging in' });
+    return res.status(500).json({ message: 'Error logging in' });
   }
 });
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email } = req.body;
 
     // Mock registration
     const token = jwt.sign(
@@ -64,7 +65,7 @@ router.post('/register', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       token,
       user: {
         id: mockUser.id,
@@ -77,29 +78,29 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error registering user' });
+    return res.status(500).json({ message: 'Error registering user' });
   }
 });
 
 // Get current user
-router.get('/me', async (req, res) => {
+router.get('/me', (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    // Verify token but we'll return mock data anyway
+    jwt.verify(token, JWT_SECRET);
     
-    // Return mock user data
-    res.json({
+    return res.json({
       id: mockUser.id,
       email: mockUser.email,
       financialProfile: mockUser.financialProfile
     });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({ message: 'Error getting user data' });
+    return res.status(500).json({ message: 'Error getting user data' });
   }
 });
 
