@@ -1,21 +1,21 @@
-import axios, { InternalAxiosRequestConfig, AxiosError } from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 import { 
   AuthResponse, 
   FinancialProfile, 
   RetirementPlan, 
   UserSettings,
-  RegisterRequest,
-  ApiError
+  RegisterRequest
 } from '../types/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://finance-pro-backend.vercel.app/api';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Enable sending cookies in cross-origin requests
+  // Disable credentials since we're using token-based auth
+  withCredentials: false
 });
 
 // Add token to requests if available
@@ -34,7 +34,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
@@ -42,21 +41,16 @@ api.interceptors.response.use(
   }
 );
 
-const handleError = (error: unknown, defaultMessage: string): never => {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ApiError>;
-    throw new Error(axiosError.response?.data?.message || defaultMessage);
-  }
-  throw new Error(defaultMessage);
-};
-
 export const authAPI = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
     try {
       const response = await api.post<AuthResponse>('/auth/login', { email, password });
       return response.data;
     } catch (error) {
-      return handleError(error, 'Login failed');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Login failed');
+      }
+      throw error;
     }
   },
 
@@ -65,7 +59,10 @@ export const authAPI = {
       const response = await api.post<AuthResponse>('/auth/register', data);
       return response.data;
     } catch (error) {
-      return handleError(error, 'Registration failed');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Registration failed');
+      }
+      throw error;
     }
   },
 };
@@ -76,7 +73,10 @@ export const financialAPI = {
       const response = await api.post<FinancialProfile>('/financial/profile', data);
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to update profile');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to update profile');
+      }
+      throw error;
     }
   },
 
@@ -85,7 +85,10 @@ export const financialAPI = {
       const response = await api.get<FinancialProfile>('/financial/profile');
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to get profile');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to get profile');
+      }
+      throw error;
     }
   },
 
@@ -94,7 +97,10 @@ export const financialAPI = {
       const response = await api.post<RetirementPlan>('/financial/retirement', data);
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to update retirement plan');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to update retirement plan');
+      }
+      throw error;
     }
   },
 
@@ -103,7 +109,10 @@ export const financialAPI = {
       const response = await api.get<RetirementPlan>('/financial/retirement');
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to get retirement plan');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to get retirement plan');
+      }
+      throw error;
     }
   },
 
@@ -112,7 +121,10 @@ export const financialAPI = {
       const response = await api.post<UserSettings>('/financial/settings', data);
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to update settings');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to update settings');
+      }
+      throw error;
     }
   },
 
@@ -121,7 +133,10 @@ export const financialAPI = {
       const response = await api.get<UserSettings>('/financial/settings');
       return response.data;
     } catch (error) {
-      return handleError(error, 'Failed to get settings');
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed to get settings');
+      }
+      throw error;
     }
   },
 };
