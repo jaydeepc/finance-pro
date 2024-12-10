@@ -6,11 +6,13 @@ import {
   Box,
   CircularProgress,
   Alert,
+  useTheme,
 } from '@mui/material'
 import { financialAPI } from '../services/api'
 import { FinancialProfile } from '../types/api'
 
 function Dashboard() {
+  const theme = useTheme()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [financialData, setFinancialData] = useState<FinancialProfile | null>(null)
@@ -52,6 +54,15 @@ function Dashboard() {
 
   const totalPortfolioValue = (financialData?.currentSavings || 0) + totalInvestments
 
+  const paperStyle = {
+    p: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    bgcolor: theme.palette.mode === 'dark' ? '#003D4F' : '#FFFFFF',
+    borderRadius: 3,
+    border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ 
@@ -65,17 +76,21 @@ function Dashboard() {
       }}>
         {/* Financial Summary */}
         <Paper
+          elevation={0}
           sx={{
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
+            ...paperStyle,
             height: 240,
           }}
         >
-          <Typography component="h2" variant="h6" color="primary" gutterBottom>
+          <Typography 
+            component="h2" 
+            variant="h6" 
+            sx={{ color: theme.palette.primary.main, fontWeight: 600 }}
+            gutterBottom
+          >
             Financial Summary
           </Typography>
-          <Typography component="p" variant="h4">
+          <Typography component="p" variant="h4" sx={{ fontWeight: 700 }}>
             ${totalPortfolioValue.toLocaleString()}
           </Typography>
           <Typography color="text.secondary" sx={{ flex: 1 }}>
@@ -93,14 +108,18 @@ function Dashboard() {
 
         {/* Recent Activity */}
         <Paper
+          elevation={0}
           sx={{
-            p: 2,
-            display: 'flex',
-            flexDirection: 'column',
+            ...paperStyle,
             height: 240,
           }}
         >
-          <Typography component="h2" variant="h6" color="primary" gutterBottom>
+          <Typography 
+            component="h2" 
+            variant="h6" 
+            sx={{ color: theme.palette.primary.main, fontWeight: 600 }}
+            gutterBottom
+          >
             Recent Activity
           </Typography>
           <Box sx={{ flex: 1 }}>
@@ -117,28 +136,39 @@ function Dashboard() {
 
         {/* Investment Distribution */}
         <Paper 
+          elevation={0}
           sx={{ 
-            p: 2, 
-            display: 'flex', 
-            flexDirection: 'column',
+            ...paperStyle,
             gridColumn: {
               xs: '1',
               md: '1 / span 2'
             }
           }}
         >
-          <Typography component="h2" variant="h6" color="primary" gutterBottom>
+          <Typography 
+            component="h2" 
+            variant="h6" 
+            sx={{ color: theme.palette.primary.main, fontWeight: 600 }}
+            gutterBottom
+          >
             Investment Distribution
           </Typography>
           {financialData?.currentInvestments ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 3, mt: 2 }}>
               {Object.entries(financialData.currentInvestments).map(([key, value]) => (
                 value ? (
-                  <Box key={key}>
-                    <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+                  <Box 
+                    key={key}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ textTransform: 'capitalize', fontWeight: 600, mb: 1 }}>
                       {key}
                     </Typography>
-                    <Typography variant="h6">
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
                       ${value.toLocaleString()}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">

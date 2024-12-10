@@ -12,7 +12,7 @@ import {
   Toolbar,
   Typography,
   Divider,
-  useTheme as useMuiTheme,
+  useTheme,
   Avatar,
   Badge,
   ListItemButton,
@@ -29,15 +29,15 @@ import {
   Notifications as NotificationsIcon,
 } from '@mui/icons-material'
 import { auth } from '../../utils/auth'
-import { useTheme } from '../../contexts/ThemeContext'
+import { useTheme as useCustomTheme } from '../../contexts/ThemeContext'
 
 const drawerWidth = 280
 
 function MainLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const muiTheme = useMuiTheme()
-  const { darkMode, toggleDarkMode } = useTheme()
+  const theme = useTheme()
+  const { darkMode, toggleDarkMode } = useCustomTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleDrawerToggle = () => {
@@ -63,12 +63,13 @@ function MainLayout() {
           sx={{
             width: 40,
             height: 40,
-            background: 'linear-gradient(45deg, #2E5CFF 0%, #00C9FF 100%)',
+            bgcolor: theme.palette.primary.main,
+            color: '#FFFFFF',
           }}
         >
           FA
         </Avatar>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
           Financial Advisor
         </Typography>
       </Box>
@@ -84,6 +85,9 @@ function MainLayout() {
             sx={{
               py: 1.5,
               px: 2,
+              '& .MuiListItemIcon-root': {
+                color: location.pathname === item.path ? theme.palette.primary.main : theme.palette.text.secondary,
+              },
             }}
           >
             <ListItemIcon>{item.icon}</ListItemIcon>
@@ -92,6 +96,7 @@ function MainLayout() {
               primaryTypographyProps={{
                 fontSize: '0.95rem',
                 fontWeight: location.pathname === item.path ? 600 : 500,
+                color: location.pathname === item.path ? theme.palette.primary.main : theme.palette.text.primary,
               }}
             />
           </ListItemButton>
@@ -99,7 +104,16 @@ function MainLayout() {
       </List>
       <Divider sx={{ mx: 2 }} />
       <List sx={{ px: 1 }}>
-        <ListItemButton onClick={toggleDarkMode} sx={{ py: 1.5, px: 2 }}>
+        <ListItemButton 
+          onClick={toggleDarkMode} 
+          sx={{ 
+            py: 1.5, 
+            px: 2,
+            '& .MuiListItemIcon-root': {
+              color: theme.palette.text.secondary,
+            },
+          }}
+        >
           <ListItemIcon>
             {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
           </ListItemIcon>
@@ -108,7 +122,16 @@ function MainLayout() {
             primaryTypographyProps={{ fontSize: '0.95rem' }}
           />
         </ListItemButton>
-        <ListItemButton onClick={handleLogout} sx={{ py: 1.5, px: 2 }}>
+        <ListItemButton 
+          onClick={handleLogout} 
+          sx={{ 
+            py: 1.5, 
+            px: 2,
+            '& .MuiListItemIcon-root': {
+              color: theme.palette.text.secondary,
+            },
+          }}
+        >
           <ListItemIcon>
             <LogoutIcon />
           </ListItemIcon>
@@ -130,6 +153,8 @@ function MainLayout() {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          bgcolor: theme.palette.mode === 'dark' ? '#003D4F' : '#FFFFFF',
+          borderBottom: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -148,7 +173,7 @@ function MainLayout() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton 
               sx={{ 
-                color: muiTheme.palette.text.primary,
+                color: theme.palette.text.secondary,
                 '&:hover': {
                   background: darkMode 
                     ? 'rgba(255,255,255,0.05)'
@@ -156,7 +181,7 @@ function MainLayout() {
                 },
               }}
             >
-              <Badge badgeContent={3} color="error">
+              <Badge badgeContent={3} color="primary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -164,7 +189,8 @@ function MainLayout() {
             <Avatar
               sx={{
                 cursor: 'pointer',
-                background: 'linear-gradient(45deg, #2E5CFF 0%, #00C9FF 100%)',
+                bgcolor: theme.palette.primary.main,
+                color: '#FFFFFF',
                 transition: 'transform 0.2s',
                 '&:hover': {
                   transform: 'scale(1.05)',
@@ -193,6 +219,8 @@ function MainLayout() {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              bgcolor: theme.palette.mode === 'dark' ? '#003D4F' : '#FFFFFF',
+              borderRight: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
             },
           }}
         >
@@ -205,6 +233,8 @@ function MainLayout() {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              bgcolor: theme.palette.mode === 'dark' ? '#003D4F' : '#FFFFFF',
+              borderRight: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
             },
           }}
           open
@@ -220,9 +250,7 @@ function MainLayout() {
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mt: '64px',
-          background: darkMode
-            ? 'linear-gradient(135deg, #121212 0%, #1E1E2D 100%)'
-            : 'linear-gradient(135deg, #F8FAFF 0%, #FFFFFF 100%)',
+          bgcolor: theme.palette.mode === 'dark' ? '#002A38' : '#F8FAFF',
           minHeight: 'calc(100vh - 64px)',
         }}
       >
