@@ -16,26 +16,45 @@ connectDB();
 const app = express();
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:5178',  // Local development
+  'http://localhost:3000',  // Alternative local port
+  'https://finance-pro.vercel.app', // Production frontend
+  process.env.CORS_ORIGIN, // From env variable
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5178',
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  maxAge: 86400 // 24 hours
 };
 
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Add headers middleware
+// Add headers middleware for preflight
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:5178');
+  const origin = req.headers.origin;
+  if (origin && (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -62,7 +81,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 app.get('/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'ok',
-    database: 'connected'
+    database: 'connected',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -71,7 +91,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5178'}`);
+  console.log(`Allowed Origins: ${allowedOrigins.join(', ')}`);
 });
 
 // Handle unhandled promise rejections
