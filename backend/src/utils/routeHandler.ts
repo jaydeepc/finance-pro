@@ -1,8 +1,7 @@
 import { RequestHandler } from 'express';
-import { RouteHandler } from '../types/express';
 
-export const wrapHandler = (handler: RouteHandler): RequestHandler => {
+export const wrapHandler = (handler: RequestHandler): RequestHandler => {
   return (req, res, next) => {
-    Promise.resolve(handler(req, res)).catch(next);
+    Promise.resolve(handler(req, res, next)).catch(next);
   };
 };
