@@ -7,17 +7,17 @@ export default function AuthHero() {
 
   const features = [
     {
-      icon: <AccountBalanceIcon sx={{ fontSize: 24 }} />,
+      icon: <AccountBalanceIcon sx={{ fontSize: 28 }} />,
       title: 'Smart Banking',
       description: 'Experience intelligent financial management with our advanced banking solutions',
     },
     {
-      icon: <SecurityIcon sx={{ fontSize: 24 }} />,
+      icon: <SecurityIcon sx={{ fontSize: 28 }} />,
       title: 'Secure & Protected',
       description: 'Your finances are protected with enterprise-grade security measures',
     },
     {
-      icon: <TrendingUpIcon sx={{ fontSize: 24 }} />,
+      icon: <TrendingUpIcon sx={{ fontSize: 28 }} />,
       title: 'Wealth Growth',
       description: 'Maximize your wealth potential with our expert financial guidance',
     },
@@ -29,7 +29,6 @@ export default function AuthHero() {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
         p: { xs: 4, md: 8 },
         position: 'relative',
         overflow: 'hidden',
@@ -42,35 +41,57 @@ export default function AuthHero() {
           bottom: 0,
           backgroundImage: 'url("/auth-pattern.svg")',
           backgroundSize: 'cover',
-          opacity: 0.1,
+          opacity: 0.05,
           zIndex: 0,
         },
       }}
     >
-      <Box sx={{ position: 'relative', zIndex: 1, maxWidth: '480px' }}>
-        <Box 
-          sx={{ 
-            display: 'inline-flex',
+      {/* Logo Section */}
+      <Box 
+        sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          mb: 12,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <Box
+          sx={{
+            width: 56,
+            height: 56,
+            display: 'flex',
             alignItems: 'center',
-            bgcolor: isDark ? 'rgba(46,92,255,0.1)' : 'rgba(46,92,255,0.05)',
-            color: theme.palette.primary.main,
-            py: 1,
-            px: 2,
+            justifyContent: 'center',
             borderRadius: 2,
-            mb: 4,
+            bgcolor: theme.palette.primary.main,
+            color: '#FFFFFF',
           }}
         >
-          <AccountBalanceIcon sx={{ mr: 1, fontSize: 20 }} />
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-            Financial Advisor Pro
-          </Typography>
+          <AccountBalanceIcon sx={{ fontSize: 32 }} />
         </Box>
-
         <Typography
-          variant="h3"
+          variant="h5"
           sx={{
             fontWeight: 700,
-            mb: 2,
+            color: theme.palette.text.primary,
+            fontSize: '1.5rem',
+          }}
+        >
+          Financial Advisor Pro
+        </Typography>
+      </Box>
+
+      {/* Main Content */}
+      <Box sx={{ position: 'relative', zIndex: 1, maxWidth: '480px' }}>
+        <Typography
+          variant="h1"
+          sx={{
+            fontWeight: 800,
+            fontSize: '3.5rem',
+            lineHeight: 1.2,
+            mb: 3,
             color: theme.palette.text.primary,
           }}
         >
@@ -83,11 +104,11 @@ export default function AuthHero() {
               '&::after': {
                 content: '""',
                 position: 'absolute',
-                bottom: 4,
+                bottom: 8,
                 left: 0,
                 width: '100%',
                 height: '8px',
-                background: isDark ? 'rgba(46,92,255,0.2)' : 'rgba(46,92,255,0.1)',
+                background: isDark ? 'rgba(242,97,122,0.2)' : 'rgba(242,97,122,0.1)',
                 borderRadius: '4px',
                 zIndex: -1,
               },
@@ -99,31 +120,35 @@ export default function AuthHero() {
         </Typography>
 
         <Typography
-          variant="subtitle1"
+          variant="h6"
           sx={{
             color: theme.palette.text.secondary,
-            mb: 6,
+            mb: 8,
             lineHeight: 1.8,
+            fontWeight: 500,
           }}
         >
           Join thousands of users who trust us to manage their finances. Get personalized advice, secure banking, and expert financial planning all in one place.
         </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {features.map((feature, index) => (
             <Box
               key={index}
               sx={{
                 display: 'flex',
                 alignItems: 'flex-start',
-                gap: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.5)',
-                border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : theme.palette.divider}`,
-                transition: 'transform 0.2s ease-in-out',
+                gap: 3,
+                p: 3,
+                borderRadius: 3,
+                bgcolor: isDark ? 'rgba(255,255,255,0.03)' : '#FFFFFF',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0'}`,
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
                   transform: 'translateX(8px)',
+                  boxShadow: isDark 
+                    ? '0 4px 20px rgba(0,0,0,0.2)'
+                    : '0 4px 20px rgba(0,0,0,0.05)',
                 },
               }}
             >
@@ -132,28 +157,28 @@ export default function AuthHero() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 40,
-                  height: 40,
+                  width: 56,
+                  height: 56,
                   borderRadius: 2,
-                  bgcolor: isDark ? 'rgba(46,92,255,0.1)' : 'rgba(46,92,255,0.05)',
+                  bgcolor: isDark ? 'rgba(242,97,122,0.1)' : 'rgba(242,97,122,0.05)',
                   color: theme.palette.primary.main,
                 }}
               >
                 {feature.icon}
               </Box>
-              <Box>
+              <Box sx={{ flex: 1 }}>
                 <Typography
-                  variant="subtitle2"
+                  variant="h6"
                   sx={{
                     fontWeight: 600,
                     color: theme.palette.text.primary,
-                    mb: 0.5,
+                    mb: 1,
                   }}
                 >
                   {feature.title}
                 </Typography>
                 <Typography
-                  variant="body2"
+                  variant="body1"
                   sx={{
                     color: theme.palette.text.secondary,
                     lineHeight: 1.6,

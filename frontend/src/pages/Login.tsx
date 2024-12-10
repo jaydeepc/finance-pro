@@ -10,9 +10,6 @@ import {
   InputAdornment,
   IconButton,
   useTheme,
-  Paper,
-  CircularProgress,
-  Divider,
 } from '@mui/material'
 import {
   Email as EmailIcon,
@@ -75,7 +72,7 @@ function Login() {
       sx={{
         display: 'flex',
         minHeight: '100vh',
-        bgcolor: theme.palette.mode === 'dark' ? '#1a1a2e' : '#f8faff',
+        bgcolor: theme.palette.mode === 'dark' ? '#003D4F' : '#FFFFFF',
       }}
     >
       {/* Left side - Hero Section */}
@@ -83,8 +80,7 @@ function Login() {
         sx={{
           flex: '1 1 50%',
           display: { xs: 'none', md: 'block' },
-          position: 'relative',
-          bgcolor: theme.palette.mode === 'dark' ? '#141428' : '#f0f4ff',
+          bgcolor: theme.palette.mode === 'dark' ? '#00485C' : '#F7FAFC',
         }}
       >
         <AuthHero />
@@ -98,23 +94,23 @@ function Login() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          p: { xs: 3, sm: 6 },
-          position: 'relative',
+          p: { xs: 3, sm: 6, md: 8 },
         }}
       >
         <Box
           sx={{
-            maxWidth: '440px',
             width: '100%',
+            maxWidth: '440px',
           }}
         >
-          <Box sx={{ mb: 5, textAlign: 'center' }}>
+          <Box sx={{ mb: 6, textAlign: 'left' }}>
             <Typography
               variant="h4"
               sx={{
-                fontWeight: 700,
                 color: theme.palette.text.primary,
-                mb: 1,
+                fontWeight: 700,
+                mb: 2,
+                fontSize: '2rem',
               }}
             >
               Welcome back!
@@ -123,7 +119,7 @@ function Login() {
               variant="body1"
               sx={{
                 color: theme.palette.text.secondary,
-                mb: 3,
+                fontSize: '1rem',
               }}
             >
               Please enter your credentials to access your account
@@ -136,44 +132,39 @@ function Login() {
               sx={{ 
                 mb: 3,
                 borderRadius: 2,
-                '& .MuiAlert-message': {
-                  width: '100%',
-                },
               }}
             >
               {error}
             </Alert>
           )}
 
-          <Paper
-            elevation={0}
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit}
             sx={{
-              p: 4,
-              borderRadius: 3,
-              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : '#ffffff',
-              border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : '#e0e0f0'}`,
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 4px 20px rgba(0,0,0,0.4)'
-                : '0 4px 20px rgba(0,0,0,0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
             }}
           >
-            <Box 
-              component="form" 
-              onSubmit={handleSubmit}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 3,
-              }}
-            >
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.primary,
+                  fontWeight: 500,
+                  mb: 1,
+                }}
+              >
+                Email Address *
+              </Typography>
               <TextField
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
                 name="email"
+                placeholder="Enter your email"
                 autoComplete="email"
-                autoFocus
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
@@ -184,21 +175,27 @@ function Login() {
                     </InputAdornment>
                   ),
                 }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : '#f8faff',
-                  },
-                }}
               />
+            </Box>
 
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.primary,
+                  fontWeight: 500,
+                  mb: 1,
+                }}
+              >
+                Password *
+              </Typography>
               <TextField
                 required
                 fullWidth
                 name="password"
-                label="Password"
                 type={showPassword ? 'text' : 'password'}
                 id="password"
+                placeholder="Enter your password"
                 autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
@@ -221,82 +218,74 @@ function Login() {
                     </InputAdornment>
                   ),
                 }}
+              />
+            </Box>
+
+            <Box sx={{ textAlign: 'right' }}>
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : '#f8faff',
+                  color: theme.palette.primary.main,
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': {
+                    textDecoration: 'underline',
                   },
                 }}
-              />
+              >
+                Forgot password?
+              </Link>
+            </Box>
 
-              <Box sx={{ textAlign: 'right', mt: -1 }}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              endIcon={<ArrowForwardIcon />}
+              sx={{
+                height: 48,
+                bgcolor: theme.palette.primary.main,
+                color: '#FFFFFF',
+                '&:hover': {
+                  bgcolor: theme.palette.primary.dark,
+                },
+              }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
+
+            <Box 
+              sx={{ 
+                textAlign: 'center',
+                mt: 2,
+              }}
+            >
+              <Typography 
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                Don't have an account?{' '}
                 <Link
                   component={RouterLink}
-                  to="/forgot-password"
+                  to="/register"
                   sx={{
                     color: theme.palette.primary.main,
                     textDecoration: 'none',
-                    fontSize: '0.875rem',
+                    fontWeight: 600,
                     '&:hover': {
                       textDecoration: 'underline',
                     },
                   }}
                 >
-                  Forgot password?
+                  Sign up now
                 </Link>
-              </Box>
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={loading}
-                sx={{
-                  py: 1.5,
-                  borderRadius: 2,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  bgcolor: theme.palette.primary.main,
-                  color: '#fff',
-                  '&:hover': {
-                    bgcolor: theme.palette.primary.dark,
-                  },
-                }}
-                endIcon={loading ? <CircularProgress size={20} color="inherit" /> : <ArrowForwardIcon />}
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 2 }}>
-                <Divider sx={{ flex: 1 }} />
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  OR
-                </Typography>
-                <Divider sx={{ flex: 1 }} />
-              </Box>
-
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Don't have an account?{' '}
-                  <Link
-                    component={RouterLink}
-                    to="/register"
-                    sx={{
-                      color: theme.palette.primary.main,
-                      textDecoration: 'none',
-                      fontWeight: 600,
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      },
-                    }}
-                  >
-                    Sign up now
-                  </Link>
-                </Typography>
-              </Box>
+              </Typography>
             </Box>
-          </Paper>
+          </Box>
         </Box>
       </Box>
     </Box>

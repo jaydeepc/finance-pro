@@ -58,18 +58,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     palette: {
       mode: darkMode ? 'dark' : 'light',
       primary: {
-        main: '#2E5CFF',
-        light: '#5B7FFF',
-        dark: '#0039CB',
+        main: '#F2617A',
+        light: '#FF7B93',
+        dark: '#D94D64',
       },
       secondary: {
-        main: '#00C9FF',
-        light: '#6EFFFF',
-        dark: '#0098CC',
+        main: darkMode ? '#FFFFFF' : '#003D4F',
+        light: darkMode ? '#FFFFFF' : '#004D63',
+        dark: darkMode ? '#E0E0E0' : '#002A38',
       },
       background: {
-        default: darkMode ? '#121212' : '#F8FAFF',
-        paper: darkMode ? '#1E1E2D' : '#FFFFFF',
+        default: darkMode ? '#003D4F' : '#FFFFFF',
+        paper: darkMode ? '#00485C' : '#FFFFFF',
+      },
+      text: {
+        primary: darkMode ? '#FFFFFF' : '#003D4F',
+        secondary: darkMode ? '#B0B0B0' : '#4A5568',
       },
       error: {
         main: '#FF3B3B',
@@ -80,146 +84,81 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       warning: {
         main: '#FFB946',
       },
-      text: {
-        primary: darkMode ? '#FFFFFF' : '#2A2A42',
-        secondary: darkMode ? '#B5B5C3' : '#6B6B80',
-      },
     },
     typography: {
       fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
       h1: {
-        fontWeight: 600,
-        fontSize: '2.5rem',
+        fontWeight: 700,
+        fontSize: '3rem',
       },
       h2: {
-        fontWeight: 600,
-        fontSize: '2rem',
+        fontWeight: 700,
+        fontSize: '2.5rem',
       },
       h3: {
-        fontWeight: 600,
-        fontSize: '1.75rem',
+        fontWeight: 700,
+        fontSize: '2rem',
       },
       h4: {
-        fontWeight: 600,
-        fontSize: '1.5rem',
+        fontWeight: 700,
+        fontSize: '1.75rem',
       },
       h5: {
         fontWeight: 600,
-        fontSize: '1.25rem',
+        fontSize: '1.5rem',
       },
       h6: {
         fontWeight: 600,
-        fontSize: '1rem',
+        fontSize: '1.25rem',
       },
       button: {
         textTransform: 'none',
-        fontWeight: 500,
+        fontWeight: 600,
       },
     },
     shape: {
       borderRadius: 12,
     },
     components: {
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            background: darkMode 
-              ? 'linear-gradient(90deg, #1E1E2D 0%, #2D2D44 100%)'
-              : 'linear-gradient(90deg, #FFFFFF 0%, #F8FAFF 100%)',
-            boxShadow: darkMode 
-              ? '0 2px 6px 0 rgba(0,0,0,0.3)'
-              : '0 2px 6px 0 rgba(45,92,255,0.1)',
-          },
-        },
-      },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            background: darkMode 
-              ? 'linear-gradient(180deg, #1E1E2D 0%, #2D2D44 100%)'
-              : 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%)',
-            borderRight: 'none',
-            boxShadow: darkMode 
-              ? '2px 0 6px 0 rgba(0,0,0,0.3)'
-              : '2px 0 6px 0 rgba(45,92,255,0.1)',
-          },
-        },
-      },
       MuiButton: {
         styleOverrides: {
           root: {
             borderRadius: 8,
-            textTransform: 'none',
-            padding: '8px 16px',
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-1px)',
-              boxShadow: '0 4px 8px rgba(45,92,255,0.2)',
-            },
+            padding: '10px 24px',
+            fontSize: '1rem',
+            fontWeight: 600,
           },
           contained: {
-            background: 'linear-gradient(45deg, #2E5CFF 0%, #00C9FF 100%)',
-            color: '#FFFFFF',
+            boxShadow: 'none',
             '&:hover': {
-              background: 'linear-gradient(45deg, #5B7FFF 0%, #6EFFFF 100%)',
+              boxShadow: 'none',
             },
           },
         },
       },
-      MuiCard: {
+      MuiTextField: {
         styleOverrides: {
           root: {
-            borderRadius: 16,
-            boxShadow: darkMode 
-              ? '0 4px 12px rgba(0,0,0,0.3)'
-              : '0 4px 12px rgba(45,92,255,0.1)',
-            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: darkMode 
-                ? '0 6px 16px rgba(0,0,0,0.4)'
-                : '0 6px 16px rgba(45,92,255,0.2)',
-            },
-          },
-        },
-      },
-      MuiListItemButton: {
-        styleOverrides: {
-          root: {
-            borderRadius: 8,
-            margin: '4px 8px',
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-              background: darkMode 
-                ? 'rgba(46,92,255,0.1)'
-                : 'rgba(46,92,255,0.05)',
-            },
-            '&.Mui-selected': {
-              background: darkMode 
-                ? 'rgba(46,92,255,0.2)'
-                : 'rgba(46,92,255,0.1)',
-              '&:hover': {
-                background: darkMode 
-                  ? 'rgba(46,92,255,0.25)'
-                  : 'rgba(46,92,255,0.15)',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 8,
+              backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : '#F7FAFC',
+              '& fieldset': {
+                borderColor: darkMode ? 'rgba(255,255,255,0.1)' : '#E2E8F0',
+              },
+              '&:hover fieldset': {
+                borderColor: darkMode ? 'rgba(255,255,255,0.2)' : '#CBD5E0',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#F2617A',
               },
             },
           },
         },
       },
-      MuiListItemIcon: {
+      MuiPaper: {
         styleOverrides: {
           root: {
-            color: darkMode ? '#B5B5C3' : '#6B6B80',
-            minWidth: 40,
-          },
-        },
-      },
-      MuiListItemText: {
-        styleOverrides: {
-          primary: {
-            color: darkMode ? '#FFFFFF' : '#2A2A42',
-            fontWeight: 500,
+            backgroundImage: 'none',
           },
         },
       },
