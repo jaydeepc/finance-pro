@@ -14,8 +14,9 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
-  withCredentials: false
+  withCredentials: true // Enable sending cookies and auth headers
 });
 
 // Add token to requests if available
@@ -45,6 +46,9 @@ export const authAPI = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
     try {
       const response = await api.post<AuthResponse>('/auth/login', { email, password });
+      if (response.data.token) {
+        localStorage.setItem(TOKEN_KEY, response.data.token);
+      }
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -57,6 +61,9 @@ export const authAPI = {
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     try {
       const response = await api.post<AuthResponse>('/auth/register', data);
+      if (response.data.token) {
+        localStorage.setItem(TOKEN_KEY, response.data.token);
+      }
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
