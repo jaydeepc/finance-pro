@@ -7,20 +7,20 @@ import {
   RegisterRequest
 } from '../types/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://finance-pro-backend.vercel.app/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const TOKEN_KEY = 'financial_advisor_token';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  // Disable credentials since we're using token-based auth
   withCredentials: false
 });
 
 // Add token to requests if available
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(TOKEN_KEY);
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -34,7 +34,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem(TOKEN_KEY);
       window.location.href = '/login';
     }
     return Promise.reject(error);
