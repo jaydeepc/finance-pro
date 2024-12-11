@@ -16,7 +16,11 @@ const ThemeContext = createContext<ThemeContextType>({
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Initialize from localStorage if available
+    const savedMode = localStorage.getItem('theme_mode');
+    return savedMode ? savedMode === 'dark' : false;
+  });
   const [settings, setSettings] = useState<UserSettings>({
     darkMode: false,
     emailNotifications: true,
@@ -41,16 +45,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleDarkMode = async () => {
-    try {
-      const newSettings = {
-        ...settings,
-        darkMode: !darkMode,
-      };
-      await financialAPI.updateSettings(newSettings);
-      setSettings(newSettings);
-      setDarkMode(!darkMode);
-    } catch (error) {
-      console.error('Failed to update theme settings:', error);
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('theme_mode', newDarkMode ? 'dark' : 'light');
+
+    // Only update API if user is logged in
+    if (localStorage.getItem('financial_advisor_token')) {
+      try {
+        const newSettings = {
+          ...settings,
+          darkMode: newDarkMode,
+        };
+        await financialAPI.updateSettings(newSettings);
+        setSettings(newSettings);
+      } catch (error) {
+        console.error('Failed to update theme settings:', error);
+      }
     }
   };
 
