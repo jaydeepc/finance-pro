@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDB } from './config/database';
@@ -19,21 +18,22 @@ connectDB().catch(err => {
   process.exit(1);
 });
 
-// CORS configuration
-const corsOptions = {
-  origin: ['http://localhost:5174', 'https://finance-pro-three.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
+// Custom CORS middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
 
-// Additional CORS headers for preflight
-app.options('*', cors(corsOptions));
+  next();
+});
 
 // Body parser
 app.use(express.json());
@@ -65,7 +65,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('CORS configuration:', corsOptions);
+  console.log('CORS headers enabled for all origins');
 });
 
 // Handle unhandled promise rejections
