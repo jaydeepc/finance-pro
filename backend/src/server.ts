@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connectDB } from './config/database';
@@ -17,6 +18,22 @@ connectDB().catch(err => {
   console.error('Failed to connect to MongoDB:', err);
   process.exit(1);
 });
+
+// CORS configuration
+const corsOptions = {
+  origin: ['http://localhost:5174', 'https://finance-pro-three.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Additional CORS headers for preflight
+app.options('*', cors(corsOptions));
 
 // Body parser
 app.use(express.json());
@@ -48,6 +65,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('CORS configuration:', corsOptions);
 });
 
 // Handle unhandled promise rejections
