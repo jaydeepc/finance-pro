@@ -21,11 +21,19 @@ connectDB().catch(err => {
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5174'];
+console.log('Allowed Origins:', allowedOrigins); // Debug log
+
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
+      console.log('Origin blocked by CORS:', origin); // Debug log
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -64,6 +72,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('CORS Allowed Origins:', allowedOrigins); // Debug log
 });
 
 // Handle unhandled promise rejections
