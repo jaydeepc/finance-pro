@@ -20,18 +20,25 @@ connectDB().catch(err => {
 
 // Custom CORS middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+  
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Origin');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Length, X-Requested-With');
   res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
 
-  // Handle preflight requests
+  // Handle preflight
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request from origin:', origin);
     res.status(204).end();
     return;
   }
 
+  console.log('Request from origin:', origin);
   next();
 });
 
@@ -65,7 +72,7 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('CORS headers enabled for all origins');
+  console.log('CORS headers enabled with extended configuration');
 });
 
 // Handle unhandled promise rejections
