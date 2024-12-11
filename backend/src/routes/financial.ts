@@ -1,39 +1,28 @@
 import express from 'express';
 import type { Request, Response } from 'express';
+import { User } from '../models/User';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Mock financial data
-const mockFinancialData = {
-  profile: {
-    creditScore: 750,
-    monthlyIncome: 5000,
-    currentSavings: 10000,
-    currentInvestments: {
-      stocks: 5000,
-      bonds: 3000,
-      realEstate: 0,
-      other: 2000
-    }
-  },
-  retirementGoals: {
-    currentAge: 30,
-    targetAge: 65,
-    monthlyRetirementIncome: 8000,
-    riskTolerance: 'moderate' as const
-  },
-  settings: {
-    emailNotifications: true,
-    darkMode: false,
-    twoFactorAuth: false,
-    marketingEmails: true
-  }
+// Helper function to get user ID from token
+const getUserIdFromToken = (req: Request): string => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) throw new Error('No token provided');
+  const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+  return decoded.userId;
 };
 
 // Get financial profile
-router.get('/profile', (_: Request, res: Response) => {
+router.get('/profile', async (req: Request, res: Response) => {
   try {
-    return res.json(mockFinancialData.profile);
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.json(user.financialProfile);
   } catch (error) {
     console.error('Get profile error:', error);
     return res.status(500).json({ message: 'Error getting financial profile' });
@@ -41,14 +30,33 @@ router.get('/profile', (_: Request, res: Response) => {
 });
 
 // Update financial profile
-router.post('/profile', (req: Request, res: Response) => {
+router.post('/profile', async (req: Request, res: Response) => {
   try {
-    const updatedProfile = {
-      ...mockFinancialData.profile,
-      ...req.body
-    };
-    mockFinancialData.profile = updatedProfile;
-    return res.json(updatedProfile);
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Only update the fields that are provided
+    if (req.body.monthlyIncome !== undefined) {
+      user.financialProfile.monthlyIncome = req.body.monthlyIncome;
+    }
+    if (req.body.creditScore !== undefined) {
+      user.financialProfile.creditScore = req.body.creditScore;
+    }
+    if (req.body.currentSavings !== undefined) {
+      user.financialProfile.currentSavings = req.body.currentSavings;
+    }
+    if (req.body.currentInvestments) {
+      user.financialProfile.currentInvestments = {
+        ...user.financialProfile.currentInvestments,
+        ...req.body.currentInvestments
+      };
+    }
+
+    await user.save();
+    return res.json(user.financialProfile);
   } catch (error) {
     console.error('Update profile error:', error);
     return res.status(500).json({ message: 'Error updating financial profile' });
@@ -56,9 +64,14 @@ router.post('/profile', (req: Request, res: Response) => {
 });
 
 // Get retirement plan
-router.get('/retirement', (_: Request, res: Response) => {
+router.get('/retirement', async (req: Request, res: Response) => {
   try {
-    return res.json(mockFinancialData.retirementGoals);
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.json(user.financialProfile.retirementGoals || {});
   } catch (error) {
     console.error('Get retirement plan error:', error);
     return res.status(500).json({ message: 'Error getting retirement plan' });
@@ -66,14 +79,25 @@ router.get('/retirement', (_: Request, res: Response) => {
 });
 
 // Update retirement plan
-router.post('/retirement', (req: Request, res: Response) => {
+router.post('/retirement', async (req: Request, res: Response) => {
   try {
-    const updatedRetirementGoals = {
-      ...mockFinancialData.retirementGoals,
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.financialProfile.retirementGoals) {
+      user.financialProfile.retirementGoals = {};
+    }
+
+    user.financialProfile.retirementGoals = {
+      ...user.financialProfile.retirementGoals,
       ...req.body
     };
-    mockFinancialData.retirementGoals = updatedRetirementGoals;
-    return res.json(updatedRetirementGoals);
+
+    await user.save();
+    return res.json(user.financialProfile.retirementGoals);
   } catch (error) {
     console.error('Update retirement plan error:', error);
     return res.status(500).json({ message: 'Error updating retirement plan' });
@@ -81,9 +105,14 @@ router.post('/retirement', (req: Request, res: Response) => {
 });
 
 // Get user settings
-router.get('/settings', (_: Request, res: Response) => {
+router.get('/settings', async (req: Request, res: Response) => {
   try {
-    return res.json(mockFinancialData.settings);
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.json(user.settings);
   } catch (error) {
     console.error('Get settings error:', error);
     return res.status(500).json({ message: 'Error getting user settings' });
@@ -91,14 +120,21 @@ router.get('/settings', (_: Request, res: Response) => {
 });
 
 // Update user settings
-router.post('/settings', (req: Request, res: Response) => {
+router.post('/settings', async (req: Request, res: Response) => {
   try {
-    const updatedSettings = {
-      ...mockFinancialData.settings,
+    const userId = getUserIdFromToken(req);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.settings = {
+      ...user.settings,
       ...req.body
     };
-    mockFinancialData.settings = updatedSettings;
-    return res.json(updatedSettings);
+    await user.save();
+
+    return res.json(user.settings);
   } catch (error) {
     console.error('Update settings error:', error);
     return res.status(500).json({ message: 'Error updating user settings' });

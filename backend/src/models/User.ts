@@ -5,7 +5,7 @@ export interface IUser extends Document {
   password: string;
   financialProfile: {
     creditScore?: number;
-    monthlyIncome: number;
+    monthlyIncome?: number;
     currentSavings?: number;
     currentInvestments?: {
       stocks?: number;
@@ -41,57 +41,75 @@ const UserSchema = new Schema<IUser>({
     required: true,
   },
   financialProfile: {
-    creditScore: {
-      type: Number,
-      min: 300,
-      max: 850,
+    type: {
+      creditScore: {
+        type: Number,
+        min: 300,
+        max: 850,
+      },
+      monthlyIncome: {
+        type: Number,
+        min: 0,
+        default: 0,
+      },
+      currentSavings: {
+        type: Number,
+        min: 0,
+        default: 0,
+      },
+      currentInvestments: {
+        stocks: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+        bonds: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+        realEstate: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+        other: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+      },
+      retirementGoals: {
+        currentAge: {
+          type: Number,
+          min: 18,
+          max: 100,
+        },
+        targetAge: {
+          type: Number,
+          min: 18,
+          max: 100,
+        },
+        monthlyRetirementIncome: {
+          type: Number,
+          min: 0,
+        },
+        riskTolerance: {
+          type: String,
+          enum: ['conservative', 'moderate', 'aggressive'],
+        },
+      },
     },
-    monthlyIncome: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    currentSavings: {
-      type: Number,
-      min: 0,
-    },
-    currentInvestments: {
-      stocks: {
-        type: Number,
-        min: 0,
+    default: {
+      monthlyIncome: 0,
+      currentSavings: 0,
+      currentInvestments: {
+        stocks: 0,
+        bonds: 0,
+        realEstate: 0,
+        other: 0,
       },
-      bonds: {
-        type: Number,
-        min: 0,
-      },
-      realEstate: {
-        type: Number,
-        min: 0,
-      },
-      other: {
-        type: Number,
-        min: 0,
-      },
-    },
-    retirementGoals: {
-      currentAge: {
-        type: Number,
-        min: 18,
-        max: 100,
-      },
-      targetAge: {
-        type: Number,
-        min: 18,
-        max: 100,
-      },
-      monthlyRetirementIncome: {
-        type: Number,
-        min: 0,
-      },
-      riskTolerance: {
-        type: String,
-        enum: ['conservative', 'moderate', 'aggressive'],
-      },
+      retirementGoals: {},
     },
   },
   settings: {
@@ -126,4 +144,5 @@ UserSchema.methods.toJSON = function() {
   return obj;
 };
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+const UserModel = mongoose.model<IUser>('User', UserSchema);
+export { UserModel as User };
