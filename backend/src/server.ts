@@ -20,39 +20,12 @@ connectDB().catch(err => {
 });
 
 // CORS configuration
-const isDevelopment = process.env.NODE_ENV === 'development';
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5174'];
-console.log('Environment:', process.env.NODE_ENV);
-console.log('Allowed Origins:', allowedOrigins);
-
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow all origins in development mode
-    if (isDevelopment) {
-      callback(null, true);
-      return;
-    }
-
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('Blocked origin:', origin);
-      console.log('Allowed origins:', allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  maxAge: 86400 // 24 hours
 }));
 
 // Body parser
@@ -85,10 +58,6 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log('CORS configuration:', {
-    isDevelopment,
-    allowedOrigins
-  });
 });
 
 // Handle unhandled promise rejections
