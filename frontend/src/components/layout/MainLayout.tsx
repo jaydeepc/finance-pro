@@ -159,11 +159,14 @@ function MainLayout() {
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <IconButton
-            color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ 
+              mr: 2, 
+              display: { sm: 'none' },
+              color: theme.palette.mode === 'dark' ? '#FFFFFF' : theme.palette.text.primary
+            }}
           >
             <MenuIcon />
           </IconButton>
